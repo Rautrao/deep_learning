@@ -1,5 +1,0 @@
-if(EXISTS "/home/ambadas/projects/deep_learning/googletest_example/build/test_googletest_example[1]_tests.cmake")
-  include("/home/ambadas/projects/deep_learning/googletest_example/build/test_googletest_example[1]_tests.cmake")
-else()
-  add_test(test_googletest_example_NOT_BUILT test_googletest_example_NOT_BUILT)
-endif()
