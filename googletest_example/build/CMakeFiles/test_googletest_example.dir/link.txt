@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/test_googletest_example.dir/src/my_functions.cpp.o CMakeFiles/test_googletest_example.dir/tests/test_my_function.cpp.o -o test_googletest_example  lib/libgtest_main.a lib/libgtest.a 
