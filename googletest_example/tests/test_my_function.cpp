@@ -9,3 +9,22 @@ TEST(SigmoidTest,BaseCase) {
     EXPECT_NEAR(sigmoid(.0),.5,1e-7f) <<"Sigmoid ceneter position test failed";
 }
 
+TEST(OddCase,BaseCases) {
+    std::vector<int> vec {9,4,1,11,20,-1,2};
+    int actual = find_middle(vec);
+    EXPECT_EQ(4,actual);
+}
+
+TEST(EvenCase, BaseCases) {
+    std::vector<int> vec {9,4,1,11,20,-1,2};
+    int actual = find_middle(vec);
+    EXPECT_EQ(4,actual);
+}
+
+TEST(CheckEmptyVector,BaseCases) {
+    EXPECT_THROW ({
+        std::vector<int> vec;//empty vector
+        find_middle(vec);
+    },std::invalid_argument);
+
+}
