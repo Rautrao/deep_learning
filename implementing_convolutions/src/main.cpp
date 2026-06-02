@@ -18,6 +18,23 @@ auto Conv_2D = [](const Eigen::MatrixXd &X,const Eigen::MatrixXd &K) {
     return res;
 };
 
+auto native_Padded_Conv_2D = [](const Eigen::MatrixXd &X,const Eigen::MatrixXd &K,int padding) {
+    const int k_rows = K.rows();
+    const int k_cols = K.cols();
+    const int rows = (X.rows()-k_rows+1+2*padding);
+    const int cols = (X.cols()-k_cols+1+2*padding);
+    Eigen::MatrixXd pad = Eigen::MatrixXd::Zero(X.rows()+2*padding, 2*padding+X.cols());
+    pad.block(padding,padding,X.rows(),X.cols()) = X;
+    Eigen::MatrixXd res = Eigen::MatrixXd(rows,cols);
+
+    for (int i=0;i<rows;i++) {
+        for (int j=0;j<cols;j++) {
+            double sum = pad.block(i,j,k_rows,k_cols).cwiseProduct(K).sum();
+            res(i,j) = sum;
+        }
+    }
+    return res;
+};
 int main(int , char **) {
     Eigen::MatrixXd K(3,3);
     K<< -1,0,1,
