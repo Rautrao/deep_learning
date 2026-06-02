@@ -3,6 +3,9 @@
 #include<stdexcept>
 #include<cstdlib>
 #include<algorithm>
+#include<chrono>
+#include<random>
+#include "../include/my_functions.hpp"
 
 float sigmoid(float z) {
     float result;
@@ -20,5 +23,17 @@ int find_middle(const std::vector<int> & arr) {
     std::vector<int> copy = arr;
     std::sort(copy.begin(),copy.end());
     int result = copy[N/2];
+    return result;
+}
+std::vector<float> glorot_initializer(int fan_in,int fan_out) {
+    int size = fan_in*fan_out;
+    float std_dev = sqrt(2./(fan_in+fan_out));
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine generator(seed);
+    std::normal_distribution<float> distribution(.0,std_dev);
+    std::vector<float> result(size);
+    std::generate(result.begin(),result.end(),[&generator,&distribution] () {
+        return distribution(generator);
+    });
     return result;
 }

@@ -38,7 +38,5 @@ int main(int,char **) {
 	std::cout<<B.binaryExpr(C,func_X_Y)<<std::endl;
 	
 	
-	
-	
 	return 0;
 }
