@@ -5,7 +5,7 @@
 #include<algorithm>
 #include<chrono>
 #include<random>
-#include "../include/my_functions.hpp"
+#include "my_functions.hpp"
 
 float sigmoid(float z) {
     float result;

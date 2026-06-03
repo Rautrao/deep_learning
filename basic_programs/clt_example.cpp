@@ -3,12 +3,11 @@
 #include<iostream>
 #include<map>
 #include<random>
-#include<random>
 #include<string>
 
 std::random_device rd{};
 
-int main(int argc,char ** argv) {
+int main(int,char **) {
 	const unsigned int seed = rd(); 
 	std::mt19937 random_generator{seed}; // we can control the randomness by setting custom seed 
 	
