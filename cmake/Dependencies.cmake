@@ -35,3 +35,19 @@ function(deep_learning_setup_googletest)
   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable(googletest)
 endfunction()
+
+function(deep_learning_setup_opencv)
+  if(TARGET deep_learning_opencv)
+    return()
+  endif()
+
+  find_package(OpenCV REQUIRED)
+
+  add_library(deep_learning_opencv INTERFACE)
+  target_include_directories(deep_learning_opencv INTERFACE
+    ${OpenCV_INCLUDE_DIRS}
+  )
+  target_link_libraries(deep_learning_opencv INTERFACE
+    ${OpenCV_LIBS}
+  )
+endfunction()
