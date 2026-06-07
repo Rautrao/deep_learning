@@ -37,7 +37,7 @@ function(deep_learning_setup_googletest)
 endfunction()
 
 function(deep_learning_setup_opencv)
-  if(TARGET deep_learning_opencv)
+  if(TARGET opencv_core)
     return()
   endif()
 

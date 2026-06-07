@@ -67,12 +67,12 @@ int main() {
 
 
     G_y << 
-    1., 2., 1.,
-    0., 0., 0.,
+    1.,   2., 1.,
+    0.,   0., 0.,
     -1., -2., -1.;
 
-    cv::Mat src = cv::imread("./using_opencv/src/chess.jpg",cv::IMREAD_COLOR);
-    cv::Mat img;
+    cv::Mat src = cv::imread("./using_opencv/src/chess.jpg",cv::IMREAD_COLOR); 
+    cv::Mat img; 
     cv::cvtColor(src,img,cv::COLOR_BGR2GRAY);
     Eigen::MatrixXd X;
     cv::cv2eigen(img,X);
