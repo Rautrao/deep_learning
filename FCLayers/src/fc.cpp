@@ -19,10 +19,9 @@ public:
     Eigen::Tensor<T, _RANK> evaluate(const Eigen::Tensor<T, _RANK>& input) {
         const auto input_dims = input.dimensions();
         const auto weight_dims = weights.dimensions();
-
-        int instance_size = input_dims[_RANK - 1]; // last dimension size
-        int output_size = weight_dims[1]; // output size is nothing but the no of columns in the weight matrix
         
+        int instance_size = input_dims[_RANK - 1]; // last dimension size
+        int output_size = weight_dims[1]; // output size is no of 
 
         // perform some runtime checks
         if (instance_size != weight_dims[0]) 
@@ -79,27 +78,28 @@ Eigen::Tensor<T, Rank> sigmoid_activation(const Eigen::Tensor<T, Rank>& Z) {
            });
 }
 int main() {
-    srand((unsigned int) time(0));
+    srand((unsigned int) time(0)); // seeds to some random number
 
     // Bias initializer: zeros
     auto bias_initializer = [](const int size) {
-        Eigen::Tensor<float, 1> result(size);
-        result.setZero();
+        Eigen::Tensor<float, 1> result(size);    // 1 Rank tensor
+        result.setZero();    // initializing to zero
         return result;
     };
 
     // Weight initializer: small random values
     auto weight_initializer = [](const int rows, const int cols, float range = 0.05f) {
-        Eigen::Tensor<float, 2> _random(rows, cols);
-        _random.setRandom();
+        Eigen::Tensor<float, 2> _random(rows, cols);   // 2D tensor
+        _random.setRandom();  
         Eigen::Tensor<float, 2> result = (_random - _random.constant(0.5f))* _random.constant(range);
         return result;
     };
 
     // Define layers
-    Dense<float, 2> layer1(weight_initializer(4, 6), bias_initializer(6), sigmoid_activation<float, 2>);
-    Dense<float, 2> layer2(weight_initializer(6, 4), bias_initializer(4), sigmoid_activation<float, 2>);
-    Dense<float, 2> output_layer(weight_initializer(4, 2), bias_initializer(2), sigmoid_activation<float, 2>);
+    Dense<float, 2> layer1( weight_initializer(4, 6), bias_initializer(6), sigmoid_activation<float, 2> );  
+    Dense<float, 2> layer2( weight_initializer(6, 4), bias_initializer(4), sigmoid_activation<float, 2> );
+    Dense<float, 2> output_layer( weight_initializer(4, 2), bias_initializer(2), sigmoid_activation<float, 2> );
+
 
     // Model pipeline
     auto model = [&](const Eigen::Tensor<float, 2>& X) {
@@ -114,8 +114,8 @@ int main() {
     input.setValues({{-1.5f, 0.4f, 2.1f, -1.2f}});
 
     // Run model
+    std::cout<<"The input is :\n" <<input<<"\n";
     auto output = model(input);
-
     std::cout << "The output is:\n" << output << "\n";
 
     return 0;
