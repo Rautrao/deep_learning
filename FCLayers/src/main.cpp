@@ -2,6 +2,7 @@
 #include<Eigen/Dense>
 #include<iostream>
 #include<cmath>
+#include<functional>
 
 // float sigmoid(float z) {
 //     float result;
@@ -21,6 +22,7 @@ Eigen::Tensor<T, Rank> sigmoid_activation(const Eigen::Tensor<T, Rank>& Z)
         return T(1) / (T(1) + std::exp(-x));
     });
 }
+
 Eigen::Tensor<float,1> calc_layer (const Eigen::Tensor<float, 1> & input ,const Eigen::Tensor<float,2> &weights, const Eigen::Tensor<float,1> & bias) {
     Eigen::array<Eigen::IndexPair<int>, 1> op_dims = {Eigen::IndexPair<int>(0, 0)};
     auto prod = input.contract (weights,op_dims);

@@ -1,6 +1,7 @@
 deep_learning_setup_eigen()
 
 add_executable(fcl src/fc.cpp)
+
 target_link_libraries(fcl PRIVATE
   deep_learning_options
   deep_learning_warnings

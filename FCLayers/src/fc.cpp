@@ -77,6 +77,17 @@ Eigen::Tensor<T, Rank> sigmoid_activation(const Eigen::Tensor<T, Rank>& Z) {
                 return T(1) / (T(1) + std::exp(-x));
            });
 }
+
+template <typename T, int _RANK> 
+auto flatten(const Eigen::Tensor<T, _RANK> &input) {
+    const auto input_dims = input.dimensions();
+    const int batch_size = input_dims[0];
+    int instance_size = input.size() / batch_size;
+    Eigen::array<long long int, 2> new_dim({batch_size, instance_size});
+    Eigen::Tensor<T, 2> result = input.reshape(new_dim);
+    return result;
+}
+
 int main() {
     srand((unsigned int) time(0)); // seeds to some random number
 
@@ -117,6 +128,17 @@ int main() {
     std::cout<<"The input is :\n" <<input<<"\n";
     auto output = model(input);
     std::cout << "The output is:\n" << output << "\n";
-
+    
+    
+    std::cout<<"--------------flatten---------------\n\n";
+    
+    
+    Eigen::Tensor<float,3> inp(10,3,3);
+    inp.setRandom();
+    std::cout<<"Input dimensions are: "<<inp.dimensions()<<"\n\n";
+    std::cout<<"Input tensor:\n\n"<<inp<<"\n\n";
+    auto op = flatten(inp);
+    std::cout<<"output dimensions are:\n\n"<<op.dimensions()<<"\n\n";
+    std::cout<<"output:\n\n"<<op<<"\n\n";
     return 0;
 }
