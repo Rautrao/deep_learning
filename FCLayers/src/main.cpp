@@ -14,8 +14,7 @@
 
 
 template<typename T, int Rank>
-Eigen::Tensor<T, Rank> sigmoid_activation(const Eigen::Tensor<T, Rank>& Z)
-{
+Eigen::Tensor<T, Rank> sigmoid_activation(const Eigen::Tensor<T, Rank>& Z) {
     return Z.unaryExpr([](T x) {
         if (x >= T(45)) return T(1);
         if (x <= T(-45)) return T(0);
