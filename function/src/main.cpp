@@ -13,7 +13,7 @@ int main(int,char **) {
         Eigen::Tensor<float,2> Y(1,size);
         Y.setConstant(b);
         std::normal_distribution<float> normal_distro(0,noise);
-        
+                                                        //interceptor is nothing but : b
         auto random_gen = [&rng, &normal_distro, a] (float interceptor,float x) {
             return interceptor + normal_distro(rng) + x*a;
         };
@@ -22,17 +22,17 @@ int main(int,char **) {
     };
 
     //generating 30 instances ,in a range of 0<X<10 , with a =2 ,b=3 and noise deviation = 2
-    
+                                //size, range, a ,b, noise
     auto [X,Y] = synthetic_generator(30,10.f,2.f,3.f,2.f);
 
-    Eigen::Tensor<float,2> H0 = X.unaryExpr([](float x) {
+    Eigen::Tensor<float,2> H0 = X.unaryExpr([](float x) { // H0 equation
         return -1.f*x+4.f;
     });
-    Eigen::Tensor<float,2> H1 = X.unaryExpr([](float x) {
+    Eigen::Tensor<float,2> H1 = X.unaryExpr([](float x) { // H1 equation
         return 1.5f*x + 1.f;
     });
 
-    float cost_h0 = mse(H0,Y);
+    float cost_h0 = mse(H0,Y); 
     float cost_h1 = mse(H1,Y);
 
     std::cout<<"Cost(Y,H0):"<<cost_h0<<std::endl;
