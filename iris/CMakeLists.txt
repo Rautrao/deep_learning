@@ -1,6 +1,6 @@
 deep_learning_setup_eigen()
 
-add_executable(main src/main.cpp)
+add_executable(iris src/iris_example.cpp)
 
 target_link_libraries(main PRIVATE
   deep_learning_options
