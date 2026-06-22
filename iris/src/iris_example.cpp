@@ -8,7 +8,7 @@
 #include<string>
 #include<Eigen/Dense>
 #include<functional>
-#include "../include/book.hpp"
+#include "../include/book/book.hpp"
 
 using namespace std;
 
