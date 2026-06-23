@@ -12,13 +12,15 @@ public:
     virtual Tensor_2D forward(Tensor_2D &X) 
     {
         this->X = X;
-        int X_dims = this->X.NumDimensions;
+        int X_dims = this->X.NumDimensions; // 2 in this case                   // 1 , 0
         Eigen::array<Eigen::IndexPair<int>, 1> op_dims = {Eigen::IndexPair<int>(X_dims - 1, 0)};
-        this->Z = this->X.contract(this->weights, op_dims);
-        this->T = this->activation->evaluate(this->Z);
-        return this->T;
+        this->Z = this->X.contract(this->weights, op_dims);  // performs matrix multiplication : 1 : columns of X ,0 : rows of weights
+        //120x3 will be dimension of z in this case
+        this->T = this->activation->evaluate(this->Z); //  applies softmax for Z : output dimensions : 120x3
+        return this->T; //120x3 in this case
     }
 
+    // d(Cost)/d(Out)
     virtual void backward(Tensor_2D &dC_dT)  {
 
         const int output_size = dC_dT.dimension(1);

@@ -1,6 +1,8 @@
 #ifndef ACTIVATION_FUNCTIONS_H_
 #define ACTIVATION_FUNCTIONS_H_
 
+#include "definitions.hpp"
+
 template <int NumIndices_>
 class ActivationFunction // base class
 {
@@ -27,7 +29,7 @@ private:
 };
 
 template <int NumIndices_>
-class Softmax : public ActivationFunction<NumIndices_>
+class Softmax : public ActivationFunction<NumIndices_> // derived class
 {
 public:
     Softmax() : ActivationFunction<NumIndices_>("book.activations.softmax") {}
@@ -58,12 +60,12 @@ public:
         auto diff = Z - max_values;  // normalization
 
         auto expo = diff.exp();
-        auto expo_sums = expo.sum(depth_dim);   
-        auto sums_reshaped = expo_sums.reshape(reshape_dim);  // sums each row of the normalized tensor
+        auto expo_sums = expo.sum(depth_dim);    // // sums each row of the normalized tensor and stores it in a vertical tensor
+        auto sums_reshaped = expo_sums.reshape(reshape_dim);  // rows = dimension[0] , cols = 1
         auto sums = sums_reshaped.broadcast(bcast);           // broadcasting sums 
         Tensor<NumIndices_> result = expo / sums;             // dividing each parameter by sums of its particular feature dimension
 
-        return result;
+        return result; // 120 x 3 in this case
     }
 
     Tensor<NumIndices_ + 1> jacobian(const Tensor<NumIndices_> &Z) const
@@ -101,7 +103,7 @@ public:
         diagonal_dimensions[NumIndices_ - 1] = S;
         diagonal_dimensions[NumIndices_] = S;
 
-        const auto diagonal_reshaped = _2D_diagonal.reshape(diagonal_dimensions);  //1x2x2 in this case
+        const auto diagonal_reshaped = _2D_diagonal.reshape(diagonal_dimensions);  //1xdimension[2]xdimension[2] in this case
 
         Eigen::array<Eigen::Index, NumIndices_ + 1> diagonal_bcast;
         for (int i = 0; i < NumIndices_ - 1; ++i)
@@ -136,10 +138,9 @@ public:
         Tensor<NumIndices_ + 1> T_extended_transposed = T_extended.shuffle(transposed_dim);
         // performing transpose on last two dimensions 
         // now rows becomes columns  :columns contain the probablistic distribution 
-        
-        const auto prod = T_extended * T_extended_transposed; // go through the book for more details 
-                        //         
-        const Tensor<NumIndices_ + 1> result = T_extended * diagonal - prod;
+        const auto prod = T_extended * T_extended_transposed; // element wise multiplication
+
+        const Tensor<NumIndices_ + 1> result = T_extended * diagonal - prod; // for more details refer book
 
         return result;
     }

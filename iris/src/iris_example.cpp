@@ -135,13 +135,14 @@ int main(int, char **)
     srand((unsigned int) time(0));
     
     auto [training_X_ds, training_Y_ds, test_X_ds, test_Y_ds] = load_iris_dataset("../data/iris.csv", true);
-
+    //     120x4          120x3           30x4       30x3
     auto init_weights = [](int rows, int cols, float range) {
         Eigen::Tensor<float, 2> result(rows, cols);
         result = result.random() * result.constant(range) - result.constant(range / 2.);
         return result;
     };
-
+    // initial weight dimension : 4x3 
+    // valid  : 120x4 * 4x3 = 120x3 which is the dimension of our Y dataset 
     auto initial_weights = init_weights(4, 3, 0.1);
 
     Softmax<2> activation;
@@ -156,8 +157,8 @@ int main(int, char **)
     {
 
         // obtaining the output for the training dataset
-        auto output = layer.forward(training_X_ds);
-
+        auto output = layer.forward(training_X_ds); // 120x3 in this case 
+    
         // calculating the derivative of the cost with respect to the output
         auto dcost_doutput = loss_function.derivative(training_Y_ds, output);
 

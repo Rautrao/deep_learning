@@ -2,6 +2,7 @@
 #define _DEFINITIONS_
 
 #include <unsupported/Eigen/CXX11/Tensor>
+#include <Eigen/Dense>
 #include <string>
 #include <exception>
 #include <iomanip>
