@@ -41,8 +41,10 @@ namespace book
                                    });
         }
 
+        // puts the exact output value within [min_value,max_value]
+        
         template <typename Scalar_>
-        Scalar_ clip(Scalar_ value, Scalar_ min_value = GLOBAL.EPSILON, Scalar_ max_value = (1.f - GLOBAL.EPSILON))
+        Scalar_ clip(Scalar_ value, Scalar_ min_value = GLOBAL.EPSILON, Scalar_ max_value = (1.f - GLOBAL.EPSILON)) 
         {
             if (value < min_value)
                 value = min_value;

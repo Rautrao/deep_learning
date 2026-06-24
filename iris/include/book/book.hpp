@@ -8,7 +8,7 @@
 #include "definitions.hpp"
 #include "utils.hpp"
 #include "activation_functions.hpp"
-#include "loss_functions.hpp"
+#include "loss_function.hpp"
 #include "layers.hpp"
 
 #endif

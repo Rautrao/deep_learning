@@ -134,7 +134,7 @@ int main(int, char **)
 
     srand((unsigned int) time(0));
     
-    auto [training_X_ds, training_Y_ds, test_X_ds, test_Y_ds] = load_iris_dataset("../data/iris.csv", true);
+    auto [training_X_ds, training_Y_ds, test_X_ds, test_Y_ds] = load_iris_dataset("iris/data/iris.csv", true);
     //     120x4          120x3           30x4       30x3
     auto init_weights = [](int rows, int cols, float range) {
         Eigen::Tensor<float, 2> result(rows, cols);
@@ -161,7 +161,7 @@ int main(int, char **)
     
         // calculating the derivative of the cost with respect to the output
         auto dcost_doutput = loss_function.derivative(training_Y_ds, output);
-
+        
         // calculating layer gradients
         layer.backward(dcost_doutput);
 

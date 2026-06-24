@@ -20,29 +20,30 @@ public:
         return this->T; //120x3 in this case
     }
 
-    // d(Cost)/d(Out)
+    // d(Cost)/d(Out) : slope of loss of each component or element of REAL and PRED  
+    // 120x3 in this case
     virtual void backward(Tensor_2D &dC_dT)  {
 
-        const int output_size = dC_dT.dimension(1);
-        const int input_size = this->X.dimension(1);
-        Tensor_2D init(input_size, output_size);
-        init.setZero();
+        const int output_size = dC_dT.dimension(1); //  3 in this case
+        const int input_size = this->X.dimension(1); // 4 in this case
+        Tensor_2D init(input_size, output_size); 
+        init.setZero(); // tensor 4x3 in this case same as weight dimension
 
-        const Eigen::array<Eigen::Index, 2> input_extent = {1, input_size}; 
-        const Eigen::array<Eigen::Index, 2> output_extent = {1, output_size};
+        const Eigen::array<Eigen::Index, 2> input_extent = {1, input_size};   // 1x4
+        const Eigen::array<Eigen::Index, 2> output_extent = {1, output_size}; // 1x3
         const Eigen::array<Eigen::IndexPair<int>, 1> product_dims = {Eigen::IndexPair<int>(1, 0)};
         const Eigen::array<Eigen::IndexPair<int>, 1> t_product_dims = {Eigen::IndexPair<int>(0, 0)};
 
-        const Eigen::array<Eigen::Index, 2> dTdZ_i_dim = {output_size, output_size};
+        const Eigen::array<Eigen::Index, 2> dTdZ_i_dim = {output_size, output_size}; // 3x3 in this case
 
         auto gradient_batch = [this, &dC_dT, &input_extent, &output_extent, &product_dims, &t_product_dims, &dTdZ_i_dim] (const Tensor_2D &acc, int index) {
 
-            Eigen::array<Eigen::Index, 2> offset = {index, 0};
+            Eigen::array<Eigen::Index, 2> offset = {index, 0}; // index : [0,1,2,...,120] in this case
 
-            const auto X_i = this->X.slice(offset, input_extent);
-            const auto Z_i = this->Z.slice(offset, output_extent);
-            const Tensor_2D dCdT_i = dC_dT.slice(offset, output_extent);
-            const Tensor_2D dTdZ_i = this->activation->jacobian(Z_i).reshape(dTdZ_i_dim);
+            const auto X_i = this->X.slice(offset, input_extent); // picking each column of input 1x4 
+            const auto Z_i = this->Z.slice(offset, output_extent);// picking each column of outpu 1x3
+            const Tensor_2D dCdT_i = dC_dT.slice(offset, output_extent); // picking each column of dC_dT  : 1x3 slope of lossfunction
+            const Tensor_2D dTdZ_i = this->activation->jacobian(Z_i).reshape(dTdZ_i_dim); // 
 
             const auto dCdZ = dCdT_i.contract(dTdZ_i, product_dims);
             const auto dCdW = X_i.contract(dCdZ, t_product_dims);
@@ -54,11 +55,15 @@ public:
         };
 
         const int batch_size = dC_dT.size() / output_size;
+                                //120x3 / 3 = 120
+        std::vector<int> batch(batch_size);  //vector of 120 size
+        std::iota(batch.begin(), batch.end(), 0); // fills batch with nos starting form 0
+ 
+        Tensor_2D result = std::accumulate(batch.begin(), batch.end(), init, gradient_batch); 
+        // assigns result = init
+        // result  = gradient_batch(result,batch[0])
+        // result  = gradient_batch(result,batch[1]) so on
 
-        std::vector<int> batch(batch_size);
-        std::iota(batch.begin(), batch.end(), 0);
-
-        Tensor_2D result = std::accumulate(batch.begin(), batch.end(), init, gradient_batch);
 
         this->weights_grad = result / result.constant(batch_size);
     }
@@ -93,9 +98,9 @@ private:
     ActivationFunction<2> *activation;
     Tensor_2D weights;
     Tensor_2D weights_grad;
-    Tensor_2D X;
-    Tensor_2D Z;
-    Tensor_2D T;
+    Tensor_2D X; // Input 
+    Tensor_2D Z; // Z = X x Weights
+    Tensor_2D T; // t is after applying softmax 
 };
 
 #endif

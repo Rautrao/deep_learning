@@ -18,7 +18,7 @@ int main(int, char **) {
     Eigen::array<int, 1> reshape_dim({output_size}); // array of size 1 : output_size
     for (int i = 0; i < batch_size; i++) {
         Eigen::array<Eigen::Index, 2> offset = {i, 0};  // saves current row index and column 0
-        Eigen::Tensor<float, 1> rozw = input.slice(offset, extent).reshape(reshape_dim); // gets ith row and convert it to rank 1 tensor 
+        Eigen::Tensor<float, 1> row = input.slice(offset, extent).reshape(reshape_dim); // gets ith row and convert it to rank 1 tensor 
         Eigen::Tensor<float, 1> output = softmax(row); // applies softmax on each element in the row
         std::cout << "softmax([" << row << "]): [" << output << "]\n";
     }

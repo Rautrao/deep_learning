@@ -61,6 +61,7 @@ public:
     }
 
 protected:
+    // we know L=−i∑​ yi​ log(pi​) categorial cross entropy loss functoin (refer book) 
     virtual float loss(const float expected, const float actual) const
     {
         float y_true = expected;
@@ -69,11 +70,14 @@ protected:
         return result;
     }
 
+    // we we calculate its derivative : 
+
+    // derivative of loss function : 
     virtual float cwise_derivative(const float expected, const float actual) const
     {
         float y_actual = book::utils::clip(actual);
-        float result = 1. + -expected / y_actual;
-        return result;
+        float result =  -expected / y_actual; // due to clipping y cannot be zero or 1 
+        return result; 
     }
 };
 
