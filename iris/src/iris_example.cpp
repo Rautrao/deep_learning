@@ -155,15 +155,16 @@ int main(int, char **)
     int epoch = 0;
     while (epoch++ < MAX_EPOCHS)
     {
-
         // obtaining the output for the training dataset
         auto output = layer.forward(training_X_ds); // 120x3 in this case 
     
         // calculating the derivative of the cost with respect to the output
-        auto dcost_doutput = loss_function.derivative(training_Y_ds, output);
-        
+        // this is nothing but the slope of the loss function 
+        auto dcost_doutput = loss_function.derivative(training_Y_ds, output); // 120x3 but stores the slope
+        // d (cost)/ d(output) is deriative of categorial cross entorypy loss function 
+
         // calculating layer gradients
-        layer.backward(dcost_doutput);
+        layer.backward(dcost_doutput); // dcost_doutput is a 120x3 matrix of slope of loss calculated by derivation of categorial cross entropy function
 
         // in this step, the internal 
         layer.update_state(learning_rate);

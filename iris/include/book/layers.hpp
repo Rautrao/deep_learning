@@ -40,10 +40,10 @@ public:
 
             Eigen::array<Eigen::Index, 2> offset = {index, 0}; // index : [0,1,2,...,120] in this case
 
-            const auto X_i = this->X.slice(offset, input_extent); // picking each column of input 1x4 
-            const auto Z_i = this->Z.slice(offset, output_extent);// picking each column of outpu 1x3
-            const Tensor_2D dCdT_i = dC_dT.slice(offset, output_extent); // picking each column of dC_dT  : 1x3 slope of lossfunction
-            const Tensor_2D dTdZ_i = this->activation->jacobian(Z_i).reshape(dTdZ_i_dim); // 
+            const auto X_i = this->X.slice(offset, input_extent); // picking each column of input X 1x4 
+            const auto Z_i = this->Z.slice(offset, output_extent);// picking each column of Z before(softmax) 1x3
+            const Tensor_2D dCdT_i = dC_dT.slice(offset, output_extent); // picking each column of dC_dT  : 1x3 slope of loss function
+            const Tensor_2D dTdZ_i = this->activation->jacobian(Z_i).reshape(dTdZ_i_dim); 
 
             const auto dCdZ = dCdT_i.contract(dTdZ_i, product_dims);
             const auto dCdW = X_i.contract(dCdZ, t_product_dims);
