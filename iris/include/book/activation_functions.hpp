@@ -71,7 +71,7 @@ public:
     Tensor<NumIndices_ + 1> jacobian(const Tensor<NumIndices_> &Z) const
     {
 
-        Tensor<NumIndices_> T = this->evaluate(Z); // T will contain a probablistic disturbuition matrix
+        Tensor<NumIndices_> T = this->evaluate(Z); // T will be probablistic distribution matrix
  
         const auto dimensions = T.dimensions();
         const int S = dimensions[NumIndices_ - 1]; // extracting last dimension

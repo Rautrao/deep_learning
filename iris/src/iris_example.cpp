@@ -165,7 +165,7 @@ int main(int, char **)
 
         // calculating layer gradients
         layer.backward(dcost_doutput); // dcost_doutput is a 120x3 matrix of slope of loss calculated by derivation of categorial cross entropy function
-
+        
         // in this step, the internal 
         layer.update_state(learning_rate);
 
