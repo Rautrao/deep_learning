@@ -9,7 +9,7 @@ public:
     Dense(Tensor_2D weights, ActivationFunction<2> *activation) : activation(activation), weights(std::move(weights)) {}
     virtual ~Dense() {}
 
-    virtual Tensor_2D forward(Tensor_2D &X) 
+    virtual Tensor_2D forward(Tensor_2D &X) // X is input matrix
     {
         this->X = X;
         int X_dims = this->X.NumDimensions; // 2 in this case                   // 1 , 0
@@ -44,9 +44,9 @@ public:
             const auto Z_i = this->Z.slice(offset, output_extent);// picking each column of Z before(softmax) 1x3
             const Tensor_2D dCdT_i = dC_dT.slice(offset, output_extent); // picking each column of dC_dT  : 1x3 slope of loss function
             const Tensor_2D dTdZ_i = this->activation->jacobian(Z_i).reshape(dTdZ_i_dim); 
-
-            const auto dCdZ = dCdT_i.contract(dTdZ_i, product_dims);
-            const auto dCdW = X_i.contract(dCdZ, t_product_dims);
+                                    // jacobian will give d S(Z) / dZ  : which will be of dimension of output_extent^2
+            const auto dCdZ = dCdT_i.contract(dTdZ_i, product_dims); 
+            const auto dCdW = X_i.contract(dCdZ, t_product_dims); // it gives 4x3 tensor as
 
             Tensor_2D result = acc + dCdW.eval();
 
@@ -58,7 +58,7 @@ public:
                                 //120x3 / 3 = 120
         std::vector<int> batch(batch_size);  //vector of 120 size
         std::iota(batch.begin(), batch.end(), 0); // fills batch with nos starting form 0
- 
+        
         Tensor_2D result = std::accumulate(batch.begin(), batch.end(), init, gradient_batch); 
         // assigns result = init
         // result  = gradient_batch(result,batch[0])
