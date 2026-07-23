@@ -20,23 +20,23 @@ const Eigen::Tensor<T,2> pooling(const Eigen::Tensor<T,2> &X, int pool_size, int
     // Thus, there is an automatic padding in the left & bottom ends
     int pre_rows = X.dimension(0) / strides;
     int pre_cols = X.dimension(1) / strides;
-    DimArray<2> pre_dims{{pre_rows, pre_cols}};
+    Eigen::array<Eigen::DenseIndex,2> pre_dims{{pre_rows, pre_cols}};
     auto pre = max_patches.reshape(pre_dims);
 
     int rows = (X.dimension(0) - pool_size) / strides + 1;
     int cols = (X.dimension(1) - pool_size) / strides + 1;
 
-    DimArray<2> offsets = {0, 0};
-    DimArray<2> extents = {rows, cols};
-    Tensor_2D result = pre.slice(offsets, extents);
-
+    Eigen::array<Eigen::DenseIndex,2> offsets = {0, 0};
+    Eigen::array<Eigen::DenseIndex,2> extents = {rows, cols};
+    Eigen::Tensor<T,2> result = pre.slice(offsets, extents);
+    
     return result;
 }
 
 int main(int, char**)
 {
 
-    Tensor_2D input(6, 8);
+    Eigen::Tensor<float,2> input(6, 8);
     input.setValues({
                 { 0.f,  1.f,  2.f,  3.f,  4.f,  5.f,  6.f,  7.f},
                 { 8.f,  9.f, 10.f, 11.f, 12.f, 13.f, 14.f, 15.f},

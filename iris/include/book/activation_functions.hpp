@@ -140,9 +140,9 @@ public:
         // now rows becomes columns  :columns contain the probablistic distribution 
         const auto prod = T_extended * T_extended_transposed; // element wise multiplication
 
-        const Tensor<NumIndices_ + 1> result = T_extended * diagonal - prod; // for more details refer book
+        const Tensor<NumIndices_ + 1> result = T_extended * diagonal - prod; // for more details refer book 
 
-        return result;
+        return result; // result will be higher rank tensor by 1
     }
 };
 
