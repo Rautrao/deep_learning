@@ -17,58 +17,59 @@ cv::Mat resize_image(const cv::Mat &image, int target_rows, int target_cols)
     int new_rows = 0;
     int new_cols = 0;
 
-    if (image_rows > image_cols) {
-        new_rows = target_rows;
-        new_cols = image_cols * target_rows / image_rows;
+    if (image_rows > image_cols) { // image rows is limiting factor so we use it for scaling the image to fit 
+        new_rows = target_rows;    // target rows x target cols but its similar to pooling but not exactly 
+        new_cols = image_cols * target_rows / image_rows; // image details perhaps, reduces.
     } else {
         new_cols = target_cols;
         new_rows = image_rows * target_cols / image_cols;
     }
     cv::Mat resized;
-    resize(image, resized, cv::Size(new_cols, new_rows), cv::INTER_LINEAR);
-
+    resize(image, resized, cv::Size(new_cols, new_rows), cv::INTER_LINEAR); // process similar to pooling for scaling the image
+                                                                            // aspect ratio remains same
     cv::Mat result = cv::Mat::zeros(cv::Size(target_cols, target_rows), CV_8UC1);
 
     resized.copyTo(result(cv::Rect((target_cols - new_cols)/2, (target_rows - new_rows)/2, resized.cols, resized.rows)));
-
+    // coping the resized image in center of the result which is target rows x target cols frame
     return result;
 }
 
-auto load_dataset(const std::string data_folder, const Tensor_2D &Gen, const int image_size) {
+auto load_dataset(const std::string data_folder, const Eigen::Tensor<float,2> &Gen, const int image_size) {
 
     std::vector<std::string> files;
 
-    for (const auto & entry : fs::directory_iterator(data_folder)) {
-        files.push_back(data_folder + entry.path().c_str());
+    for (const auto & entry : fs::directory_iterator(data_folder)) { // fs::directory_iterator lets us loop over the contents of directory
+        files.push_back(data_folder + entry.path().c_str());         // e.g directory_iterator(/data) loops over the contents of data direcory
     }
 
-    Tensor_3D X(files.size(), image_size, image_size);
-    Tensor_3D T(files.size(), image_size, image_size);
+    Eigen::Tensor<float,3> X(files.size(), image_size, image_size);
+    Eigen::Tensor<float,3> T(files.size(), image_size, image_size);
 
-    const DimArray<3> extent = {1, image_size, image_size};
+    const Eigen::array<Eigen::DenseIndex, 3> extent = {1, image_size, image_size};
 
     Eigen::array<std::pair<int, int>, 3> padding;
-    padding[0] = std::make_pair(1, 1);
-    padding[1] = std::make_pair(1, 1);
-    padding[2] = std::make_pair(0, 0);
+    padding[0] = std::make_pair(1, 1); // padding_needed_per_side = (kernel_size - 1) / 2 to preserve dimensions 
+    padding[1] = std::make_pair(1, 1); // we are using sobel's kernel : 3x3 
+    padding[2] = std::make_pair(0, 0); 
 
     for (unsigned int i = 0; i < files.size(); ++i) {
         const auto & file = files[i];
         cv::Mat image = cv::imread(file, cv::IMREAD_GRAYSCALE);
-        cv::Mat formatted_image = resize_image(image, image_size, image_size);
+        cv::Mat formatted_image = resize_image(image, image_size, image_size); // as discussed just above
         cv::Mat frame32f;
-        formatted_image.convertTo(frame32f, CV_32F);
-        frame32f /= 255.f;
+        formatted_image.convertTo(frame32f, CV_32F); // uchar [0,255] → float [0,255]
+        frame32f /= 255.f; // // float [0,255] → float [0.0, 1.0]
         
-        Tensor_3D eigen_frame(image_size, image_size, 1);
+        Eigen::Tensor<float,3> eigen_frame(image_size, image_size, 1);
         cv::cv2eigen(frame32f, eigen_frame);
 
-        Tensor_3D convolved(image_size, image_size, 1);
+        Eigen::Tensor<float,3> convolved(image_size, image_size, 1);
         Eigen::array<int, 2> dims({0, 1});
         convolved = eigen_frame.pad(padding).convolve(Gen, dims);
+        // slide the kernel along dimension 0 and dimension 1
 
-        DimArray<3> offset = {i, 0, 0};
-        DimArray<3> new_dim({image_size, image_size, 1});
+        Eigen::array<Eigen::DenseIndex, 3> offset = {i, 0, 0};
+        Eigen::array<Eigen::DenseIndex, 3> new_dim({image_size, image_size, 1});
         X.slice(offset, extent) = eigen_frame.reshape(extent);
         T.slice(offset, extent) = convolved.reshape(extent);
 
