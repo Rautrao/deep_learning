@@ -26,13 +26,13 @@ auto BatchedConvolution = [](const Eigen::Tensor<float,3> &A, const Eigen::Tenso
     return output;
 };
 
-auto backward = [](const Tensor_3D &X, Tensor_3D &T, Tensor_3D &Y)
+auto backward = [](const Eigen::Tensor<float,3> &X, Eigen::Tensor<float,3> &T, Eigen::Tensor<float,3> &Y)
 {
     auto DIFF = Y - T;
-    Tensor_3D batch = BatchedConvolution(X, DIFF);
+    Eigen::Tensor<float,3> batch = BatchedConvolution(X, DIFF);
 
-    DimArray<2> two_dims{{batch.dimension(1), batch.dimension(2)}};
-    Tensor_2D result = batch.reshape(two_dims);
+    Eigen::array<Eigen::DenseIndex, 2> two_dims{{batch.dimension(1), batch.dimension(2)}};
+    Eigen::Tensor<float,2> result = batch.reshape(two_dims);
     result = result * result.constant(2.f / X.size());
 
     return result;
@@ -52,46 +52,44 @@ auto convolution2D = [](const Eigen::Tensor<float,3> &input, const Eigen::Tensor
     return result;
 };
 
-auto forward = [](const Tensor_3D &X, const Tensor_2D &kernel)
+auto forward = [](const Eigen::Tensor<float,3> &X, const Eigen::Tensor<float,2> &kernel)
 {
     return convolution2D(X, kernel);
 };
 
-auto MSE = [](const Tensor_3D &T, const Tensor_3D &Y)
+auto MSE = [](const Eigen::Tensor<float,3> &T, const Eigen::Tensor<float,3> &Y)
 {
 
     auto diff = T - Y;
     auto quadratic = diff * diff;
-    Tensor_0D sum = quadratic.sum();
-
+    Eigen::Tensor<float,0> sum = quadratic.sum();
     float result = sum(0) / Y.size();
-
     return result;
 };
 
 int main(int argc, char**) {
 
-    Tensor_2D Generator_Kernel(3, 3);
+    Eigen::Tensor<float,2> Generator_Kernel(3, 3);
     Generator_Kernel.setValues({{1., 0., -1.}, {2., 0., -2.},{1., 0., -1.}});
 
-    auto [X, T] = load_dataset("../images/", Generator_Kernel, 160);
+    auto [X, T] = load_dataset("GDA/images", Generator_Kernel, 160);
 
     if (argc > 1) {
 
         const int batch_size = X.dimension(0);
         const int image_size = X.dimension(1);
-        const DimArray<3> image_dim = {image_size, image_size, 1};
+        const Eigen::array<Eigen::DenseIndex, 3> image_dim = {image_size, image_size, 1};
 
         for (int i = 0; i < batch_size; ++i) {
             cv::Mat X_output, T_output;
 
-            Tensor_3D x = X.chip<0>(i).reshape(image_dim);
+            Eigen::Tensor<float,3> x = X.chip<0>(i).reshape(image_dim); // getting single image and reshaping it to rank 3 tensor
             cv::eigen2cv(x, X_output);
             cv::imshow("x", X_output);
 
-            Tensor_3D t = T.chip<0>(i).reshape(image_dim);
-            Tensor_0D _max = t.maximum();
-            Tensor_3D normalization = t / t.constant(_max(0));
+            Eigen::Tensor<float,3> t = T.chip<0>(i).reshape(image_dim);
+            Eigen::Tensor<float,0> _max = t.maximum();
+            Eigen::Tensor<float,3> normalization = t / t.constant(_max(0));
             cv::eigen2cv(normalization, T_output);
             cv::imshow("t", T_output);
 
@@ -101,10 +99,10 @@ int main(int argc, char**) {
         cv::destroyAllWindows();
     }
 
-    Tensor_2D kernel(3, 3);
+    Eigen::Tensor<float,2> kernel(3, 3);
     kernel = kernel.random();
 
-    const int MAX_EPOCHS = 5'000;
+    const int MAX_EPOCHS = 500;
     const double learning_rate = 0.1;
 
     int epoch = 0;

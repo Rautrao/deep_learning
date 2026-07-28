@@ -2,6 +2,8 @@
 #define IMAGE_IO_HPP
 
 #include <filesystem>
+#include <stdexcept>
+#include <vector>
 
 #include <unsupported/Eigen/CXX11/Tensor>
 #include <opencv2/opencv.hpp>
@@ -34,16 +36,27 @@ cv::Mat resize_image(const cv::Mat &image, int target_rows, int target_cols)
     return result;
 }
 
-auto load_dataset(const std::string data_folder, const Eigen::Tensor<float,2> &Gen, const int image_size) {
+auto load_dataset(const std::string &data_folder, const Eigen::Tensor<float,2> &Gen, const int image_size) {
 
-    std::vector<std::string> files;
+    std::vector<cv::Mat> images;
 
     for (const auto & entry : fs::directory_iterator(data_folder)) { // fs::directory_iterator lets us loop over the contents of directory
-        files.push_back(data_folder + entry.path().c_str());         // e.g directory_iterator(/data) loops over the contents of data direcory
+        if (!entry.is_regular_file()) {
+            continue;
+        }
+
+        cv::Mat image = cv::imread(entry.path().string(), cv::IMREAD_GRAYSCALE);
+        if (!image.empty()) {
+            images.push_back(image);
+        }
     }
 
-    Eigen::Tensor<float,3> X(files.size(), image_size, image_size);
-    Eigen::Tensor<float,3> T(files.size(), image_size, image_size);
+    if (images.empty()) {
+        throw std::runtime_error("No readable images found in " + data_folder);
+    }
+
+    Eigen::Tensor<float,3> X(images.size(), image_size, image_size);
+    Eigen::Tensor<float,3> T(images.size(), image_size, image_size);
 
     const Eigen::array<Eigen::DenseIndex, 3> extent = {1, image_size, image_size};
 
@@ -52,9 +65,8 @@ auto load_dataset(const std::string data_folder, const Eigen::Tensor<float,2> &G
     padding[1] = std::make_pair(1, 1); // we are using sobel's kernel : 3x3 
     padding[2] = std::make_pair(0, 0); 
 
-    for (unsigned int i = 0; i < files.size(); ++i) {
-        const auto & file = files[i];
-        cv::Mat image = cv::imread(file, cv::IMREAD_GRAYSCALE);
+    for (Eigen::DenseIndex i = 0; i < static_cast<Eigen::DenseIndex>(images.size()); ++i) {
+        const cv::Mat &image = images[static_cast<std::size_t>(i)];
         cv::Mat formatted_image = resize_image(image, image_size, image_size); // as discussed just above
         cv::Mat frame32f;
         formatted_image.convertTo(frame32f, CV_32F); // uchar [0,255] → float [0,255]
